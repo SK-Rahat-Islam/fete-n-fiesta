@@ -1,25 +1,33 @@
 <?php
 session_start();
-$con = mysqli_connect("localhost", "root", "", "fete") or die();
+$con = mysqli_connect("localhost", "root", "", "fete") or die("Database connection error!");
 
 
 if (isset($_POST['submit'])) {
-    $old_pass = md5 ($_POST['old_pass']);
+
+    $email1 = $_POST['email'];
     $n_pass = md5($_POST['n_pass']);
     $r_pass = md5($_POST['r_pass']);
-    $chg_pwd = mysqli_query($con, "SELECT * FROM users WHERE email= '$email'");
-    $chg_pwd1 = mysqli_fetch_array($chg_pwd);
-    $data_pwd = $chg_pwd1['pass'];
-    if ($data_pwd == $old_pass) {
-        if ($n_pass == $r_pass) {
-            $u_pass = mysqli_query($con,  "UPDATE * FROM users SET pass='$n_pass' where email= '$email'");
-            echo "<script>alert('Update Sucessfully'); window.location='index.php'</script>";
+
+    if ($n_pass == $r_pass) {
+
+        $query =  "SELECT * from users where email='$email1'";
+        $query_check = mysqli_query($con, $query);
+        if (mysqli_num_rows($query_check) > 0) {
+            $query1 =  "UPDATE users SET pass = '$n_pass'  WHERE email='$email1'";
+            $query_run = mysqli_query($con, $query1);
+            if ($query_run) {
+                echo "<script>alert('Update Sucessfully'); window.location='login.php'</script>";
+            } else {
+                echo "<script>alert('Password is not updated, Try again!'); window.location='forget_password.php'</script>";
+            }
         } else {
-            echo "<script>alert('Your new and Retype Password is not match'); window.location='index.php'</script>";
+            echo "<script>alert('Eamil not found, Please register first'); window.location='register.php'</script>";
         }
     } else {
-        echo "<script>alert('Your old password is wrong'); window.location='index.php'</script>";
+        echo "<script>alert('Your new and Retype Password is not match'); window.location='forget_password.php'</script>";
     }
+} else {
 }
 ?>
 
@@ -58,7 +66,7 @@ if (isset($_POST['submit'])) {
 
     <header class="header">
 
-        <a href="index.php" class="logo">Fete n' Festa</a>
+        <a href="index.html" class="logo">Fete n' Festa</a>
         <ul class="navbar-nav">
             <nav class="menu">
                 <a class="reg" href="register.php">Sign up</a>
@@ -84,9 +92,9 @@ if (isset($_POST['submit'])) {
             };
             ?>
             <form method="POST">
-                <input type="text" placeholder="Old password" name="old_pass" class="form-control" />
-                <input type="text" placeholder="Create new password" name="n_pass" class="form-control" />
-                <input type="text" placeholder="Confirm new password" name="r_pass" class="form-control" />
+                <input type="email" placeholder="Enter Your Email" name="email" class="form-control" required />
+                <input type="password" placeholder="Create new password" name="n_pass" class="form-control" required />
+                <input type="password" placeholder="Confirm new password" name="r_pass" class="form-control" required />
                 <input type="hidden" name="username" value="' . $username . '">
                 <input type="hidden" name="id" value="' . $id . '">
                 <button id="submit" name="submit" class="btn btn-primary">Change</button>
